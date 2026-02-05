@@ -1,36 +1,178 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Plant Hire Calculator (South Africa)
 
-## Getting Started
+A specialized **Next.js + React** application for generating accurate **plant hire payment certificates** and **invoice breakdowns** aligned with common South African municipal tender requirements.
+The system automates complex pricing rules including **tiered discounts**, **overtime rate formulas**, and **South African public holiday logic**.
 
-First, run the development server:
+---
+
+## 🚀 Key Features
+
+### 🇿🇦 South African Context
+
+* **Currency Formatting:** ZAR (Rand) with proper spacing
+  Example: `R109 720.00`
+* **Public Holiday Detection:**
+
+  * Fixed South African public holidays
+  * Dynamic Easter-based holidays
+  * **Sunday Rule**: If a public holiday falls on a Sunday, the following Monday is treated as a holiday
+
+### 🧮 Smart Rate Calculations
+
+Rates are automatically derived from the **Base Daily Rate**:
+
+| Day Type                  | Formula                  | Description             |
+| ------------------------- | ------------------------ | ----------------------- |
+| Weekdays                  | Base Rate                | Standard daily charge   |
+| Saturdays                 | Base + (5% × Base × 1.5) | Time-and-a-half loading |
+| Sundays & Public Holidays | Base + (5% × Base × 2.0) | Double-time loading     |
+
+**Manual Override:** Any calculated rate can be manually edited to accommodate special contract terms.
+
+---
+
+### 🎯 Tiered Discount Logic (Continuous Work)
+
+| Continuous Days Worked | Discount Applied   |
+| ---------------------- | ------------------ |
+| 1–4 Days               | 0% (Standard Rate) |
+| 5–14 Days              | 5% Discount        |
+| 15+ Days               | 10% Discount       |
+
+**Important Rule:**
+Any day marked as **Idle** breaks the continuity, resetting the discount cycle.
+
+---
+
+### 🧾 Invoice Generation
+
+The system generates a structured breakdown aligned with municipal-style payment certificates:
+
+* Groups line items by **Discount Tier** and **Day Type**
+* Displays **date ranges** clearly (e.g., `Weekdays: 1–5, 8–12`)
+* Calculates totals automatically based on rates, discounts, and working days
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer      | Technology           |
+| ---------- | -------------------- |
+| Framework  | Next.js (App Router) |
+| UI Library | React                |
+| Styling    | Tailwind CSS         |
+| Icons      | Lucide React         |
+
+---
+
+## 📦 Installation & Setup
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/your-username/plant-hire-calculator.git
+cd plant-hire-calculator
+```
+
+### 2️⃣ Install Dependencies
+
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+### 3️⃣ Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open your browser and go to:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🧮 Calculation Rules (Tender Compliance)
 
-To learn more about Next.js, take a look at the following resources:
+### 1️⃣ Discount Structure (Continuous Work)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Days Worked | Rule                    |
+| ----------- | ----------------------- |
+| 1–4 Days    | No discount             |
+| 5–14 Days   | 5% off applicable rate  |
+| 15+ Days    | 10% off applicable rate |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+### 2️⃣ Overtime Rate Formulas
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+All overtime rates are derived from the tender rule:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> **Rate = Base + (5% of Base × Factor)**
+
+| Day Type                  | Factor | Formula                      |
+| ------------------------- | ------ | ---------------------------- |
+| Saturdays                 | 1.5    | `Base + (0.05 × Base × 1.5)` |
+| Sundays & Public Holidays | 2.0    | `Base + (0.05 × Base × 2.0)` |
+
+---
+
+## 📂 Project Structure
+
+```
+├── app/
+│   ├── globals.css        # Tailwind directives
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Main entry point
+├── components/
+│   └── PlantHireCalculator.tsx  # Core calculator logic
+├── public/
+└── tailwind.config.ts     # Tailwind configuration
+```
+
+---
+
+## 📝 Usage Guide
+
+### 1️⃣ Select Invoice Month
+
+Use the arrow buttons at the top of the interface to choose the billing month.
+
+### 2️⃣ Add Equipment
+
+Enter:
+
+* Machine/plant name (e.g., **Grader**)
+* Base Daily Rate (**excluding VAT**)
+
+### 3️⃣ Mark Idle Days
+
+Click calendar dates to mark them as **Idle (Red)**:
+
+* Idle days are **not billed**
+* Idle days **break discount continuity**
+
+### 4️⃣ Verify or Adjust Rates
+
+Expand **Rates Config** to view calculated overtime rates. Adjust manually if contract-specific rules apply.
+
+### 5️⃣ Review Invoice Breakdown
+
+The invoice summary updates in real time and displays:
+
+* Grouped billing lines
+* Date ranges per rate category
+* Discount tiers applied
+* Final calculated total
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.
