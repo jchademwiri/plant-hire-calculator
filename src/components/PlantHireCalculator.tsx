@@ -58,11 +58,9 @@ type DayPickerProps = {
 
 type EquipmentCardProps = {
   item: EquipmentItem;
-  currentMonth: Date;
   onRemove: () => void;
   onUpdateIdleDays: (days: Date[]) => void;
   onUpdateRates: (rates: Rates) => void;
-  onMonthChange: (month: Date) => void;
 };
 
 type InvoiceGroup = {
@@ -345,13 +343,12 @@ const DayPicker = ({ month, selectedDays, onDaysChange }: DayPickerProps) => {
 
 const EquipmentCard = ({
   item,
-  currentMonth,
   onRemove,
   onUpdateIdleDays,
   onUpdateRates,
-  onMonthChange,
 }: EquipmentCardProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const periods = calculatePeriods(item.idleDays, currentMonth);
 
@@ -470,13 +467,13 @@ const EquipmentCard = ({
   const handlePrevMonth = () => {
     const prev = new Date(currentMonth);
     prev.setMonth(prev.getMonth() - 1);
-    onMonthChange(prev);
+    setCurrentMonth(prev);
   };
 
   const handleNextMonth = () => {
     const next = new Date(currentMonth);
     next.setMonth(next.getMonth() + 1);
-    onMonthChange(next);
+    setCurrentMonth(next);
   };
 
   const monthLabel = currentMonth.toLocaleDateString('en-US', {
@@ -555,6 +552,7 @@ const EquipmentCard = ({
               </div>
               <div className="flex gap-1.5 mb-2">
                 <button
+                  type="button"
                   onClick={(e) => toggleSpecificDays(e, 6)}
                   className="flex-1 text-[10px] font-medium bg-slate-100 hover:bg-slate-200 text-slate-600 px-1.5 py-1 rounded-md transition-colors flex items-center justify-center gap-1"
                   title="Toggle Saturdays"
@@ -563,6 +561,7 @@ const EquipmentCard = ({
                   Sat
                 </button>
                 <button
+                  type="button"
                   onClick={(e) => toggleSpecificDays(e, 0)}
                   className="flex-1 text-[10px] font-medium bg-slate-100 hover:bg-slate-200 text-slate-600 px-1.5 py-1 rounded-md transition-colors flex items-center justify-center gap-1"
                   title="Toggle Sundays"
@@ -604,6 +603,9 @@ const EquipmentCard = ({
                     <span className="text-[10px] text-slate-400 mr-1">R</span>
                     <input
                       type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
                       className="w-full text-xs outline-none text-right font-medium text-slate-700"
                       value={item.rates.weekday}
                       onChange={(e) => handleRateChange('weekday', e.target.value)}
@@ -621,6 +623,9 @@ const EquipmentCard = ({
                     <span className="text-[10px] text-slate-400 mr-1">R</span>
                     <input
                       type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
                       className="w-full text-xs outline-none text-right font-medium text-slate-700"
                       value={item.rates.saturday}
                       onChange={(e) => handleRateChange('saturday', e.target.value)}
@@ -638,6 +643,9 @@ const EquipmentCard = ({
                     <span className="text-[10px] text-slate-400 mr-1">R</span>
                     <input
                       type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
                       className="w-full text-xs outline-none text-right font-medium text-slate-700"
                       value={item.rates.sunday}
                       onChange={(e) => handleRateChange('sunday', e.target.value)}
@@ -748,7 +756,6 @@ const EquipmentCard = ({
 };
 
 const PlantHireCalculator = () => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [equipment, setEquipment] = useState<EquipmentItem[]>([
     {
       id: '1',
@@ -795,6 +802,7 @@ const PlantHireCalculator = () => {
   };
 
   const grandTotal = equipment.reduce((sum, item) => {
+    const currentMonth = new Date();
     const periods = calculatePeriods(item.idleDays, currentMonth);
     const year = currentMonth.getFullYear();
     const monthIndex = currentMonth.getMonth();
@@ -851,18 +859,24 @@ const PlantHireCalculator = () => {
 
           <form onSubmit={addEquipment} className="flex flex-col md:flex-row gap-3">
             <input
+              id="equipment-name"
               placeholder="Equipment Name (e.g., Dump Truck)"
               value={newEquipmentName}
               onChange={(e) => setNewEquipmentName(e.target.value)}
+              aria-label="Equipment Name"
               className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             />
             <div className="relative">
               <span className="absolute left-3 top-2.5 text-slate-400 font-medium">R</span>
               <input
+                id="equipment-rate"
                 placeholder="Rate"
                 type="number"
+                min="0"
+                step="0.01"
                 value={newDailyRate}
                 onChange={(e) => setNewDailyRate(e.target.value)}
+                aria-label="Rate per day"
                 className="w-full md:w-32 pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
               />
             </div>
@@ -888,11 +902,9 @@ const PlantHireCalculator = () => {
               <EquipmentCard
                 key={item.id}
                 item={item}
-                currentMonth={currentMonth}
                 onRemove={() => removeEquipment(item.id)}
                 onUpdateIdleDays={(days) => updateIdleDays(item.id, days)}
                 onUpdateRates={(newRates) => updateRates(item.id, newRates)}
-                onMonthChange={setCurrentMonth}
               />
             ))
           )}
