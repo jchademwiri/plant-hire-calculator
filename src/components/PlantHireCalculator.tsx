@@ -67,8 +67,19 @@ const getDiscountTier = (days: number): DiscountTier => {
   }
 };
 
+const round2 = (val: number | undefined): number => {
+  const safe = typeof val === 'number' && Number.isFinite(val) ? val : 0;
+  return Math.round((safe + Number.EPSILON) * 100) / 100;
+};
+
 const formatCurrency = (val: number | undefined): string => {
-  return "R" + (val || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return "R" + round2(val).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+};
+
+const calculateLineTotal = (days: number, rate: number, discountPercent: number): number => {
+  const subtotal = days * rate;
+  const total = subtotal * (1 - discountPercent / 100);
+  return round2(total);
 };
 
 const calculatePeriods = (idleDays: Date[], month: Date): Period[] => {
@@ -371,9 +382,7 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({ item, currentMonth, onRem
       else if (type === 'SATURDAYS') rate = item.rates.saturday;
       else rate = item.rates.sunday;
 
-      const subtotal = days.length * rate;
-      const discount = subtotal * (group.tier.discount / 100);
-      totalCost += (subtotal - discount);
+      totalCost += calculateLineTotal(days.length, rate, group.tier.discount);
     });
   });
 
@@ -656,8 +665,7 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({ item, currentMonth, onRem
                             else if (type === 'SATURDAYS') rate = item.rates.saturday;
                             else rate = item.rates.sunday;
 
-                            const subtotal = days.length * rate;
-                            const total = subtotal * (1 - group.tier.discount / 100);
+                            const total = calculateLineTotal(days.length, rate, group.tier.discount);
                             const rangeStr = formatDayRanges(days);
 
                             return (
@@ -772,18 +780,24 @@ const PlantHireCalculator: React.FC = () => {
     let itemTotal = 0;
     periods.forEach(period => {
         // Iterate days in this period
+        let weekdayCount = 0;
+        let saturdayCount = 0;
+        let sundayHolCount = 0;
+
         for (let d = period.start; d <= period.end; d++) {
             const date = new Date(year, monthIndex, d);
             const isHol = saHolidays.some(h => 
                 h.getDate() === d && h.getMonth() === monthIndex && h.getFullYear() === year
             );
-            
-            let dailyRate = item.rates.weekday;
-            if (isHol || date.getDay() === 0) dailyRate = item.rates.sunday;
-            else if (date.getDay() === 6) dailyRate = item.rates.saturday;
 
-            itemTotal += dailyRate * (1 - period.tier.discount / 100);
+            if (isHol || date.getDay() === 0) sundayHolCount += 1;
+            else if (date.getDay() === 6) saturdayCount += 1;
+            else weekdayCount += 1;
         }
+
+        itemTotal += calculateLineTotal(weekdayCount, item.rates.weekday, period.tier.discount);
+        itemTotal += calculateLineTotal(saturdayCount, item.rates.saturday, period.tier.discount);
+        itemTotal += calculateLineTotal(sundayHolCount, item.rates.sunday, period.tier.discount);
     });
 
     return sum + itemTotal;
