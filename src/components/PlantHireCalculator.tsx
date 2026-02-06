@@ -710,8 +710,8 @@ const PlantHireCalculator: React.FC = () => {
   const [equipment, setEquipment] = useState<Equipment[]>([
     { 
         id: '1', 
-        name: 'Excavator 20T', 
-        rates: calculateRates(2500), 
+        name: 'Dropside', 
+        rates: calculateRates(5200), 
         idleDays: [] 
     } 
   ]);
