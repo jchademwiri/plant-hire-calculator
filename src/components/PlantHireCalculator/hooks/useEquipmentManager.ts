@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Equipment, Rates } from '../types';
 import { calculateRates } from '../utils/calculations';
 
 export const useEquipmentManager = () => {
+  /* 
+    Initialize with default state to prevent hydration mismatch.
+    The real state will be loaded in a useEffect on the client.
+  */
   const [equipment, setEquipment] = useState<Equipment[]>([
     { 
       id: '1', 
@@ -11,6 +15,30 @@ export const useEquipmentManager = () => {
       idleDays: [] 
     } 
   ]);
+
+  // Load from localStorage on mount (Client-side only)
+  useEffect(() => {
+    const saved = localStorage.getItem('plant-hire-data');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved, (key, value) => {
+          // Revive date strings to Date objects
+          if (key === 'idleDays' && Array.isArray(value)) {
+            return value.map(d => new Date(d));
+          }
+          return value;
+        });
+        setEquipment(parsed);
+      } catch (e) {
+        console.error('Failed to parse saved data', e);
+      }
+    }
+  }, []);
+
+  // Save to localStorage whenever equipment changes
+  useEffect(() => {
+    localStorage.setItem('plant-hire-data', JSON.stringify(equipment));
+  }, [equipment]);
 
   const addEquipment = (name: string, rate: string) => {
     if (!name || !rate) return;
