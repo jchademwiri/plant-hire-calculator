@@ -1,0 +1,7 @@
+[00:00:10.478] Server  LOG     ✓ Ready in 4.4s
+[00:35:52.319] Server  ERROR   Error: ENOENT: no such file or directory, scandir 'D:\websites\plant-hire-calculator\src\app'
+[00:35:52.354] Server  ERROR   ⨯ "unhandledRejection:" Error: ENOENT: no such file or directory, scandir 'D:\websites\plant-hire-calculator\src\app'
+[00:35:52.385] Server  ERROR   ⨯ "unhandledRejection: " Error: ENOENT: no such file or directory, scandir 'D:\websites\plant-hire-calculator\src\app'
+[00:36:13.703] Server  ERROR   Error: ENOENT: no such file or directory, scandir 'D:\websites\plant-hire-calculator\src\app'
+[00:36:13.718] Server  ERROR   ⨯ "unhandledRejection:" Error: ENOENT: no such file or directory, scandir 'D:\websites\plant-hire-calculator\src\app'
+[00:36:13.739] Server  ERROR   ⨯ "unhandledRejection: " Error: ENOENT: no such file or directory, scandir 'D:\websites\plant-hire-calculator\src\app'
