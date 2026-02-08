@@ -1,7 +1,8 @@
-# Plant Hire Calculator (South Africa)
+# 🏗️ Plant Hire Calculator (South Africa 🇿🇦)
 
-A specialized **Next.js + React** application for generating accurate **plant hire payment certificates** and **invoice breakdowns** aligned with common South African municipal tender requirements.
-The system automates complex pricing rules including **tiered discounts**, **overtime rate formulas**, and **South African public holiday logic**.
+A specialized **Astro + React** application for generating accurate **plant hire payment certificates** and **invoice breakdowns** aligned with common **South African municipal tender requirements**.
+
+The system automates complex pricing rules including **tiered discounts**, **overtime rate formulas**, and **South African public holiday logic**, ensuring consistency, compliance, and audit-friendly calculations.
 
 ---
 
@@ -9,13 +10,19 @@ The system automates complex pricing rules including **tiered discounts**, **ove
 
 ### 🇿🇦 South African Context
 
-* **Currency Formatting:** ZAR (Rand) with proper spacing
-  Example: `R109 720.00`
-* **Public Holiday Detection:**
+* **Currency Formatting**
+
+  * ZAR (South African Rand) with correct spacing
+  * Example: `R109 720.00`
+
+* **Public Holiday Detection**
 
   * Fixed South African public holidays
   * Dynamic Easter-based holidays
-  * **Sunday Rule**: If a public holiday falls on a Sunday, the following Monday is treated as a holiday
+  * **Sunday Rule**:
+    If a public holiday falls on a Sunday, the following Monday is treated as a public holiday
+
+---
 
 ### 🧮 Smart Rate Calculations
 
@@ -27,7 +34,9 @@ Rates are automatically derived from the **Base Daily Rate**:
 | Saturdays                 | Base + (5% × Base × 1.5) | Time-and-a-half loading |
 | Sundays & Public Holidays | Base + (5% × Base × 2.0) | Double-time loading     |
 
-**Manual Override:** Any calculated rate can be manually edited to accommodate special contract terms.
+* **Manual Override**
+
+  * Any calculated rate can be manually edited to accommodate special contract terms
 
 ---
 
@@ -40,28 +49,36 @@ Rates are automatically derived from the **Base Daily Rate**:
 | 15+ Days               | 10% Discount       |
 
 **Important Rule:**
-Any day marked as **Idle** breaks the continuity, resetting the discount cycle.
+Any day marked as **Idle** breaks continuity and **resets the discount cycle**.
 
 ---
 
 ### 🧾 Invoice Generation
 
-The system generates a structured breakdown aligned with municipal-style payment certificates:
+The system produces **municipal-style payment certificate breakdowns**:
 
 * Groups line items by **Discount Tier** and **Day Type**
-* Displays **date ranges** clearly (e.g., `Weekdays: 1–5, 8–12`)
-* Calculates totals automatically based on rates, discounts, and working days
+* Displays clear **date ranges**
+
+  * Example: `Weekdays: 1–5, 8–12`
+* Automatically calculates totals based on:
+
+  * Rates
+  * Discounts
+  * Working days
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Layer      | Technology           |
-| ---------- | -------------------- |
-| Framework  | Next.js (App Router) |
-| UI Library | React                |
-| Styling    | Tailwind CSS         |
-| Icons      | Lucide React         |
+| Layer      | Technology   |
+| ---------- | ------------ |
+| Runtime    | Bun          |
+| Framework  | Astro        |
+| API        | Hono         |
+| UI Library | React        |
+| Styling    | Tailwind CSS |
+| Icons      | Lucide React |
 
 ---
 
@@ -74,26 +91,22 @@ git clone https://github.com/your-username/plant-hire-calculator.git
 cd plant-hire-calculator
 ```
 
-### 2️⃣ Install Dependencies
+### 2️⃣ Install Dependencies (Bun recommended)
 
 ```bash
-npm install
-# or
-yarn install
-# or
-pnpm install
+bun install
 ```
 
 ### 3️⃣ Run the Development Server
 
 ```bash
-npm run dev
+bun dev
 ```
 
-Open your browser and go to:
+Open your browser at:
 
 ```
-http://localhost:3000
+http://localhost:4321
 ```
 
 ---
@@ -112,28 +125,33 @@ http://localhost:3000
 
 ### 2️⃣ Overtime Rate Formulas
 
-All overtime rates are derived from the tender rule:
+All overtime rates follow the tender-defined formula:
 
-> **Rate = Base + (5% of Base × Factor)**
+```
+Rate = Base + (5% of Base × Factor)
+```
 
-| Day Type                  | Factor | Formula                      |
-| ------------------------- | ------ | ---------------------------- |
-| Saturdays                 | 1.5    | `Base + (0.05 × Base × 1.5)` |
-| Sundays & Public Holidays | 2.0    | `Base + (0.05 × Base × 2.0)` |
+| Day Type                  | Factor | Formula                    |
+| ------------------------- | ------ | -------------------------- |
+| Saturdays                 | 1.5    | Base + (0.05 × Base × 1.5) |
+| Sundays & Public Holidays | 2.0    | Base + (0.05 × Base × 2.0) |
 
 ---
 
 ## 📂 Project Structure
 
-```
-├── app/
-│   ├── globals.css        # Tailwind directives
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Main entry point
-├── components/
-│   └── PlantHireCalculator.tsx  # Core calculator logic
+```txt
 ├── public/
-└── tailwind.config.ts     # Tailwind configuration
+├── src/
+│   ├── components/
+│   │   └── PlantHireCalculator.tsx   # Core calculator logic (React)
+│   ├── layouts/
+│   │   └── Layout.astro              # Main HTML shell
+│   ├── pages/
+│   │   ├── api/
+│   │   │   └── [...route].ts         # Hono API routes
+│   │   └── index.astro               # Application entry point
+└── tailwind.config.mjs               # Tailwind configuration
 ```
 
 ---
@@ -142,14 +160,14 @@ All overtime rates are derived from the tender rule:
 
 ### 1️⃣ Select Invoice Month
 
-Use the arrow buttons at the top of the interface to choose the billing month.
+Use the arrow buttons inside the equipment card (above the calendar) to choose the billing month.
 
 ### 2️⃣ Add Equipment
 
 Enter:
 
-* Machine/plant name (e.g., **Grader**)
-* Base Daily Rate (**excluding VAT**)
+* Machine / plant name (e.g. **Grader**)
+* Base Daily Rate (excluding VAT)
 
 ### 3️⃣ Mark Idle Days
 
@@ -160,7 +178,10 @@ Click calendar dates to mark them as **Idle (Red)**:
 
 ### 4️⃣ Verify or Adjust Rates
 
-Expand **Rates Config** to view calculated overtime rates. Adjust manually if contract-specific rules apply.
+Expand **Rates Config** to:
+
+* Review calculated overtime rates
+* Manually adjust rates if contract-specific rules apply
 
 ### 5️⃣ Review Invoice Breakdown
 
@@ -175,4 +196,4 @@ The invoice summary updates in real time and displays:
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.
+This project is
